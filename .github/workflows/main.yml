@@ -1,0 +1,43 @@
+name: Windows Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install CMake
+      uses: crazy-max/ghaction-chocolatey@v2
+      with:
+        args: install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+
+    - name: Install Conan
+      run: pip install conan
+
+    - name: Add Conan remote
+      run: conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+
+    - name: Build Standard Version
+      run: |
+        conan install . -if=build --build=outdated -s compiler.cppstd=17
+        conan build . -bf=build
+
+    - name: Build Qt Version
+      run: |
+        conan export conanfile.py josh/testing
+        cd qt_wrap
+        conan install . -if=build --build=outdated -s compiler.cppstd=17
+        conan build . -bf=build
