@@ -24,11 +24,13 @@ jobs:
       with:
         args: install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 
-    - name: Install Conan
-      run: pip install conan
+    - name: Install Conan 1.x
+      run: pip install "conan<2.0"
 
-    - name: Add Conan remote
-      run: conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+    - name: Configure Conan
+      run: |
+        conan profile new default --detect --force
+        conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 
     - name: Build Standard Version
       run: |
