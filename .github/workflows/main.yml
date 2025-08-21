@@ -17,31 +17,34 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.x'
+        python-version: '3.9'
 
     - name: Install CMake
       uses: crazy-max/ghaction-chocolatey@v2
       with:
         args: install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 
-    - name: Install Conan
-      run: pip install conan
+    - name: Install Conan 1.x
+      run: pip install "conan==1.59.0"
 
     - name: Configure Conan
-      run: conan profile detect --force
+      run: |
+        conan profile new default --detect --force
+        conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 
     - name: Build Standard Version
       run: |
-        conan install . --output-folder=build --build=missing -s compiler.cppstd=17
+        # 创建构建目录
+        mkdir build
         cd build
-        cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-        cmake --build . --config Release
+        conan install .. --build=outdated -s compiler.cppstd=17
+        conan build ..
 
     - name: Build Qt Version
       run: |
-        conan export . --name=gbcemulator --version=0.1.5
+        conan export conanfile.py josh/testing
         cd qt_wrap
-        conan install . --output-folder=build --build=missing -s compiler.cppstd=17
+        mkdir build
         cd build
-        cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
-        cmake --build . --config Release
+        conan install .. --build=outdated -s compiler.cppstd=17
+        conan build ..
