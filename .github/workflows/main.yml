@@ -20,54 +20,26 @@ jobs:
         python-version: '3.x'
 
     - name: Install CMake
-      uses: actions/setup-cmake@v2
+      uses: crazy-max/ghaction-chocolatey@v2
       with:
-        cmake-version: '3.x'
+        args: install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 
-    - name: Install Conan
-      run: pip install conan --user
+    - name: Install Conan 1.x
+      run: pip install "conan<2.0"
 
-    - name: Add Conan remote
-      run: conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+    - name: Configure Conan
+      run: |
+        conan profile new default --detect --force
+        conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 
-    - name: Install dependencies
-      run: conan install . -if=build --build=outdated -s compiler.cppstd=17
+    - name: Build Standard Version
+      run: |
+        conan install . -if=build --build=outdated -s compiler.cppstd=17
+        conan build . -bf=build
 
-    - name: Build project
-      run: conan build . -bf=build
-
-  build-qt:
-    runs-on: windows-latest
-    needs: build
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
-
-    - name: Install CMake
-      uses: actions/setup-cmake@v2
-      with:
-        cmake-version: '3.x'
-
-    - name: Install Conan
-      run: pip install conan --user
-
-    - name: Add Conan remote
-      run: conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-
-    - name: Export conanfile
-      run: conan export conanfile.py josh/testing
-
-    - name: Change to qt_wrap directory
-      run: cd qt_wrap
-
-    - name: Install Qt dependencies
-      run: conan install . -if=build --build=outdated -s compiler.cppstd=17
-
-    - name: Build Qt project
-      run: conan build . -bf=build
+    - name: Build Qt Version
+      run: |
+        conan export conanfile.py josh/testing
+        cd qt_wrap
+        conan install . -if=build --build=outdated -s compiler.cppstd=17
+        conan build . -bf=build
