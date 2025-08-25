@@ -18,7 +18,7 @@ class GBCEmulator(ConanFile):
                 "lib_only": [True, False],
                 "qt": [True, False]}
     requires = (
-        "sdl/2.32.2",
+        "sdl/2.30.8",
         "spdlog/1.9.2",
         "libpng/1.6.39",
         "libzip/1.8.0",
