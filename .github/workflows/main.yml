@@ -35,6 +35,9 @@ jobs:
     - name: Build Standard Version
       run: |
         conan install . -if=build --build=outdated -s compiler.cppstd=17
+        copy D:\a\GBCEmulator\GBCEmulator\build\build\conaninfo.txt D:\a\GBCEmulator\GBCEmulator\build\conaninfo.txt
+        copy D:\a\GBCEmulator\GBCEmulator\build\build\conanbuildinfo.txt D:\a\GBCEmulator\GBCEmulator\build\conanbuildinfo.txt
+        xcopy "D:\a\GBCEmulator\GBCEmulator\build\build\generators" "D:\a\GBCEmulator\GBCEmulator\build\generators" /s /e /i /y
         conan build . -bf=build
 
     - name: Build Qt Version
